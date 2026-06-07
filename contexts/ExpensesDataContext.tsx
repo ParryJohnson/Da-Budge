@@ -12,7 +12,7 @@ type ExpensesDataContextType = {
 };
 
 const ExpensesDataContext = createContext<ExpensesDataContextType | null>(null);
-const CACHE_KEY = "stash_expenses_v1";
+const CACHE_KEY = "dabudge_expenses_v1";
 
 type CachedData = { allRows: SheetRow[]; allTransfers: TransferRow[] };
 

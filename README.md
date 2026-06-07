@@ -1,4 +1,4 @@
-# Stash
+# Da Budge
 
 A Next.js 14 personal finance PWA: budget dashboard, net worth tracking, bank-statement
 reconciliation, an investment life-stage planner, and quick expense entry — backed by

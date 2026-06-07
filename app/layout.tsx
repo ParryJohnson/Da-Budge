@@ -11,12 +11,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Stash",
+  title: "Da Budge",
   description: "Track expenses, budget, and net worth",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Stash",
+    title: "Da Budge",
   },
   icons: {
     icon: { url: "/favicon.svg", type: "image/svg+xml" },

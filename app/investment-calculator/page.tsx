@@ -24,7 +24,7 @@ type CalculatorState = {
   stages: LifeStage[];
 };
 
-const STORAGE_KEY = "stash_investment_calculator_v1";
+const STORAGE_KEY = "dabudge_investment_calculator_v1";
 
 const STAGE_COLORS = ["#50C878", "#4EA8FF", "#F9B43B", "#9D59D5", "#FF5C5C", "#3BDBB4"];
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PlusCircle, PiggyBank, TrendingUp, ClipboardCheck, Menu, BarChart2 } from "lucide-react";
 import { useSidebar } from "@/contexts/SidebarContext";
-import StashLogo from "./StashLogo";
+import DaBudgeLogo from "./DaBudgeLogo";
 
 const navItems = [
   { href: "/new-expense", label: "New Expense", icon: PlusCircle },
@@ -34,9 +34,9 @@ export default function Sidebar() {
           <div className={`flex items-center min-w-0 ${collapsed ? "justify-center" : "gap-3 flex-1"}`}>
             <span className="flex items-center justify-center shrink-0 text-accent overflow-visible"
               style={{ width: "1.75rem", height: "1.75rem", minWidth: "1.75rem", minHeight: "1.75rem" }}>
-              <StashLogo />
+              <DaBudgeLogo />
             </span>
-            {!collapsed && <span className="font-semibold text-white text-xl tracking-tight truncate leading-none">Stash</span>}
+            {!collapsed && <span className="font-semibold text-white text-xl tracking-tight truncate leading-none">Da Budge</span>}
           </div>
           <button type="button" onClick={toggleCollapsed}
             className="hidden lg:flex p-2 rounded-lg text-gray-400 hover:text-[#50C878] hover:bg-charcoal transition-colors shrink-0"
@@ -62,7 +62,7 @@ export default function Sidebar() {
           })}
         </nav>
         <div className="p-3 border-t border-charcoal-dark shrink-0">
-          {!collapsed && <p className="text-xs text-gray-500 px-3">Stash v1</p>}
+          {!collapsed && <p className="text-xs text-gray-500 px-3">Da Budge v1</p>}
         </div>
       </aside>
     </>
