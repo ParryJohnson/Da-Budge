@@ -26,6 +26,16 @@ export function normalizeExpenseCategoryType(expenseType: string): string {
 
 export const EXPENSE_TYPE_OPTIONS = [...EXPENSE_CATEGORIES, "Income"] as const;
 
+export const TRANSFER_OPTIONS = [
+  "WF Checking",
+  "WF Savings",
+  "Venmo",
+  "Fidelity",
+  "Robinhood",
+  "Parents",
+  "Cash",
+] as const;
+
 export const PIE_COLORS = [
   "#F9B43B", // orange
   "#50C878", // green

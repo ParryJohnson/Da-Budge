@@ -19,15 +19,10 @@ export type ManualItem = {
 const LIQUID_ACCOUNT_KEYS = [
   "Wells Fargo Checking",
   "Wells Fargo Savings",
-  "Venmo - Daniel",
-  "Venmo - Katie",
-  "Ally",
-  "Capital One",
-  "America First",
-  "Discover",
+  "Venmo",
 ];
 
-const BROKER_KEYS: SupportedBroker[] = ["Fidelity", "Robinhood", "Charles Schwab"];
+const BROKER_KEYS: SupportedBroker[] = ["Fidelity", "Robinhood"];
 
 export type NetWorthSummary = {
   totalNetWorth: number;

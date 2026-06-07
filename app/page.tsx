@@ -4,19 +4,20 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
   LineChart, Line, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import { Loader2, RefreshCw, X, Pencil } from "lucide-react";
+import { Loader2, RefreshCw, X, Pencil, Plus } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import MonthDropdown from "@/components/MonthDropdown";
+import GlassDropdown from "@/components/GlassDropdown";
 import { useExpensesData } from "@/contexts/ExpensesDataContext";
 import { useMonth } from "@/contexts/MonthContext";
 import { useRefresh } from "@/contexts/RefreshContext";
-import { rowMatchesMonth, transferMatchesMonth } from "@/services/sheetsApi";
+import { rowMatchesMonth, transferMatchesMonth, submitTransfer } from "@/services/sheetsApi";
 import {
   computeAccountBalances, getAccountAnchors, type AccountAnchor,
 } from "@/services/accountBalancesService";
 import type { SupportedBroker } from "@/services/snaptradeApi";
 import type { MonthlyBudgets } from "@/lib/budgetCategoryMigration";
-import { EXPENSE_CATEGORIES, CATEGORY_COLORS, normalizeExpenseCategoryType } from "@/lib/constants";
+import { EXPENSE_CATEGORIES, CATEGORY_COLORS, normalizeExpenseCategoryType, TRANSFER_OPTIONS } from "@/lib/constants";
 
 const fmt = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
@@ -61,6 +62,7 @@ export default function BudgetDashboard() {
   const [refreshingBalances, setRefreshingBalances] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingBudget, setEditingBudget] = useState(false);
+  const [addingTransfer, setAddingTransfer] = useState(false);
 
   // Load budgets + anchors on mount.
   useEffect(() => {
@@ -263,7 +265,12 @@ export default function BudgetDashboard() {
           </Card>
 
           {/* Transfers */}
-          <Card title="Transfers">
+          <Card title="Transfers" action={
+            <button onClick={() => setAddingTransfer(true)} aria-label="Add transfer"
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent transition-colors">
+              <Plus className="w-4 h-4" />
+            </button>
+          }>
             {transfers.length === 0 ? (
               <p className="text-gray-500 text-sm py-6 text-center">No transfers.</p>
             ) : (
@@ -325,6 +332,13 @@ export default function BudgetDashboard() {
             saveBudget({ ...budgets, [key]: map });
             setEditingBudget(false);
           }}
+        />
+      )}
+
+      {addingTransfer && (
+        <NewTransferModal
+          onClose={() => setAddingTransfer(false)}
+          onSaved={() => { setAddingTransfer(false); triggerRefresh(); }}
         />
       )}
     </DashboardLayout>
@@ -434,6 +448,81 @@ function BudgetEditModal({ current, onClose, onSave }: {
             onSave(map);
           }} className="px-4 py-2 rounded-lg bg-accent text-white font-medium hover:bg-accent-dark">Save</button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function NewTransferModal({ onClose, onSaved }: {
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [transferFrom, setTransferFrom] = useState("");
+  const [transferTo, setTransferTo] = useState("");
+  const [amount, setAmount] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const num = parseFloat(amount);
+    if (!transferFrom || !transferTo || Number.isNaN(num) || num <= 0) {
+      setStatus("error");
+      setErrorMessage("Please choose both accounts and enter a valid amount.");
+      return;
+    }
+    if (transferFrom === transferTo) {
+      setStatus("error");
+      setErrorMessage("Transfer from and to can't be the same account.");
+      return;
+    }
+    setStatus("submitting");
+    setErrorMessage("");
+    try {
+      await submitTransfer({ transferFrom, transferTo, amount: num });
+      onSaved();
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Failed to submit.");
+    }
+  };
+
+  const options = TRANSFER_OPTIONS.map((opt) => ({ value: opt, label: opt }));
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="rounded-xl bg-[#252525] border border-charcoal-dark w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="px-4 py-3 bg-[#353535] border-b border-charcoal-dark flex items-center justify-between">
+          <h2 className="text-white font-medium">New Transfer</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label htmlFor="transferFrom" className="block text-sm font-medium text-gray-300 mb-1">Transfer from:</label>
+            <GlassDropdown id="transferFrom" value={transferFrom} onChange={setTransferFrom}
+              options={options} placeholder="Select account" className="w-full" aria-label="Transfer from" />
+          </div>
+          <div>
+            <label htmlFor="transferTo" className="block text-sm font-medium text-gray-300 mb-1">Transfer to:</label>
+            <GlassDropdown id="transferTo" value={transferTo} onChange={setTransferTo}
+              options={options} placeholder="Select account" className="w-full" aria-label="Transfer to" />
+          </div>
+          <div>
+            <label htmlFor="transferAmount" className="block text-sm font-medium text-gray-300 mb-1">Transfer Amount:</label>
+            <input id="transferAmount" type="number" step="0.01" min="0" required value={amount}
+              onChange={(e) => setAmount(e.target.value)} placeholder="0.00"
+              className="w-full px-3 py-2 rounded-lg bg-charcoal border border-charcoal-dark text-gray-200 focus:border-accent focus:ring-1 focus:ring-accent outline-none" />
+          </div>
+          {status === "error" && <p className="text-sm text-red-400">{errorMessage}</p>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-charcoal border border-charcoal-dark text-gray-300 hover:text-white">Cancel</button>
+            <button type="submit" disabled={status === "submitting"}
+              className="px-4 py-2 rounded-lg bg-accent text-white font-medium hover:bg-accent-dark disabled:opacity-50 flex items-center gap-2">
+              {status === "submitting" ? (<><Loader2 className="w-4 h-4 animate-spin" />Saving…</>) : "Save"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

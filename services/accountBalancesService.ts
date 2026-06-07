@@ -4,17 +4,9 @@ import type { SupportedBroker } from "@/services/snaptradeApi";
 export const TRANSFER_LABEL_TO_BALANCE_KEY: Record<string, string> = {
   "WF Checking": "Wells Fargo Checking",
   "WF Savings": "Wells Fargo Savings",
-  "Venmo - Daniel": "Venmo - Daniel",
-  "Venmo - Katie": "Venmo - Katie",
-  Venmo: "Venmo - Daniel",
+  Venmo: "Venmo",
   Fidelity: "Fidelity",
   Robinhood: "Robinhood",
-  My529: "My529",
-  "Charles Schwab": "Charles Schwab",
-  Ally: "Ally",
-  "Capital One": "Capital One",
-  "America First": "America First",
-  Discover: "Discover",
 };
 
 // IMPORTANT: These base balances are calibrated to a specific historical date.
@@ -23,19 +15,12 @@ export const TRANSFER_LABEL_TO_BALANCE_KEY: Record<string, string> = {
 export const BASE_ACCOUNT_BALANCES: Record<string, number> = {
   "Wells Fargo Checking": 427.1,
   "Wells Fargo Savings": 1061.13,
-  "Venmo - Daniel": 28.24,
-  "Venmo - Katie": 28.23,
+  Venmo: 56.47,
   Fidelity: 10597.43,
   Robinhood: 711.39,
-  My529: 0,
-  "Charles Schwab": 0,
-  Ally: 0,
-  "Capital One": 0,
-  "America First": 0,
-  Discover: 0,
 };
 
-const LIVE_BROKER_ACCOUNT_KEYS: SupportedBroker[] = ["Fidelity", "Robinhood", "Charles Schwab"];
+const LIVE_BROKER_ACCOUNT_KEYS: SupportedBroker[] = ["Fidelity", "Robinhood"];
 
 export type AccountAnchor = {
   accountName: string;
@@ -62,9 +47,7 @@ export function mapAccountNameToBalanceKey(raw: string): string {
   const lower = name.toLowerCase();
   if (lower === "wf checking" || lower === "wells fargo" || lower === "wells fargo checking") return "Wells Fargo Checking";
   if (lower === "wf savings" || lower === "wells fargo savings") return "Wells Fargo Savings";
-  if (lower === "venmo - daniel") return "Venmo - Daniel";
-  if (lower === "venmo - katie") return "Venmo - Katie";
-  if (lower === "venmo") return "Venmo - Daniel";
+  if (lower === "venmo" || lower === "venmo - daniel" || lower === "venmo - katie") return "Venmo";
   return name;
 }
 
