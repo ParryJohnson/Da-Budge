@@ -103,6 +103,7 @@ export default function BudgetDashboard() {
 
   const incomeRows = useMemo(() => rows.filter((r) => r.expenseType === "Income"), [rows]);
   const totalIncome = useMemo(() => incomeRows.reduce((a, r) => a + Number(r.amount || 0), 0), [incomeRows]);
+  const totalTransfers = useMemo(() => transfers.reduce((a, t) => a + Number(t.amount || 0), 0), [transfers]);
 
   // Cumulative expense over the period, by day.
   const cumulativeData = useMemo(() => {
@@ -255,7 +256,7 @@ export default function BudgetDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Income */}
-          <Card title="Income">
+          <Card title="Income" action={<span className="text-sm font-medium text-accent">{fmt(totalIncome)}</span>}>
             {incomeRows.length === 0 ? (
               <p className="text-gray-500 text-sm py-6 text-center">No income recorded.</p>
             ) : (
@@ -272,10 +273,13 @@ export default function BudgetDashboard() {
 
           {/* Transfers */}
           <Card title="Transfers" action={
-            <button onClick={() => setAddingTransfer(true)} aria-label="Add transfer"
-              className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent transition-colors">
-              <Plus className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-200">{fmt(totalTransfers)}</span>
+              <button onClick={() => setAddingTransfer(true)} aria-label="Add transfer"
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent transition-colors">
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
           }>
             {transfers.length === 0 ? (
               <p className="text-gray-500 text-sm py-6 text-center">No transfers.</p>

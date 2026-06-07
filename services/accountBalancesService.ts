@@ -126,10 +126,13 @@ export function computeAccountBalances(
   for (const row of allRows) {
     const amount = Number(row.amount || 0);
     if (!Number.isFinite(amount) || amount === 0) continue;
-    const accountKey = accountKeyForSheetRow(row);
+    const isIncome = row.expenseType === "Income";
+    // All expenses are paid out of Wells Fargo Checking regardless of any
+    // Account column on the row; income still routes by its account.
+    const accountKey = isIncome ? accountKeyForSheetRow(row) : "Wells Fargo Checking";
     if (balances[accountKey] === undefined) continue;
     if (!shouldApplyByAnchor(accountKey, toDateKey(row.timestamp), anchorByAccount)) continue;
-    if (row.expenseType === "Income") balances[accountKey] += amount;
+    if (isIncome) balances[accountKey] += amount;
     else balances[accountKey] -= amount;
   }
 
