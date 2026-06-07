@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --charcoal: #161616;
+  --charcoal-light: #282828;
+  --charcoal-dark: #333333;
+  --accent: #50C878;
+  --accent-light: #6DD493;
+  --accent-dark: #3DB368;
+}
+
+body {
+  @apply bg-charcoal text-gray-100 antialiased;
+}
+
+/* Remove focus/selection outline on pie chart tap (Recharts internal focus ring) */
+.expense-pie-chart *:focus {
+  outline: none;
+}
+
+/* Cross-browser range input styling for investment calculator sliders */
+input[type="range"] {
+  @apply appearance-none h-2 rounded-full cursor-pointer;
+  accent-color: #50C878;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  @apply h-2 rounded-full bg-charcoal-dark;
+}
+input[type="range"]::-moz-range-track {
+  @apply h-2 rounded-full;
+  background-color: #333333;
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--charcoal-light) var(--charcoal);
+  }
+
+  .scrollbar-glass {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-glass::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+  }
+}
