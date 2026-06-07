@@ -28,7 +28,9 @@ function progressColor(pct: number): string {
   return "#50C878";
 }
 
-// Look up a month's budget, carrying forward from previous months if unset.
+// Look up a month's budget. Each category carries forward the most recent
+// amount set at or before that month, so editing a month rolls forward to all
+// future months automatically while leaving past months untouched.
 function resolveBudget(budgets: MonthlyBudgets, monthKey: string): Record<string, number> {
   if (monthKey === "full") {
     const total: Record<string, number> = {};
@@ -38,13 +40,14 @@ function resolveBudget(budgets: MonthlyBudgets, monthKey: string): Record<string
     }
     return total;
   }
-  let n = Number(monthKey);
-  while (n >= 1) {
-    const entry = budgets[String(n)];
-    if (entry && Object.keys(entry).length > 0) return entry;
-    n--;
+  const n = Number(monthKey);
+  const result: Record<string, number> = {};
+  for (let m = 1; m <= n; m++) {
+    const entry = budgets[String(m)];
+    if (!entry) continue;
+    for (const [cat, amt] of Object.entries(entry)) result[cat] = amt;
   }
-  return {};
+  return result;
 }
 
 export default function BudgetDashboard() {
@@ -186,6 +189,8 @@ export default function BudgetDashboard() {
                     </Pie>
                     <Tooltip
                       contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }}
+                      itemStyle={{ color: "#fff" }}
+                      labelStyle={{ color: "#fff" }}
                       formatter={(v: number) => fmt(v)} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -206,6 +211,8 @@ export default function BudgetDashboard() {
                     <YAxis stroke="#888" fontSize={12} tickFormatter={(v) => `$${v}`} width={56} />
                     <Tooltip
                       contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }}
+                      itemStyle={{ color: "#fff" }}
+                      labelStyle={{ color: "#fff" }}
                       formatter={(v: number) => fmt(v)} />
                     <Line type="monotone" dataKey="cumulative" stroke="#50C878" strokeWidth={2} dot={false} />
                   </LineChart>
@@ -226,7 +233,6 @@ export default function BudgetDashboard() {
               const spent = spendByCategory[cat] ?? 0;
               const budget = monthBudget[cat] ?? 0;
               const pct = budget > 0 ? (spent / budget) * 100 : spent > 0 ? 100 : 0;
-              if (spent === 0 && budget === 0) return null;
               return (
                 <button key={cat} onClick={() => setActiveCategory(cat)} className="w-full text-left group">
                   <div className="flex items-center justify-between text-sm mb-1">
@@ -316,7 +322,7 @@ export default function BudgetDashboard() {
           onClose={() => setActiveCategory(null)}
           onSaveBudget={(amount) => {
             const key = selectedMonth === "full" ? "12" : selectedMonth;
-            const next = { ...budgets, [key]: { ...resolveBudget(budgets, key), [activeCategory]: amount } };
+            const next = { ...budgets, [key]: { ...(budgets[key] ?? {}), [activeCategory]: amount } };
             saveBudget(next);
           }}
         />
@@ -444,7 +450,7 @@ function BudgetEditModal({ current, onClose, onSave }: {
           <button onClick={onClose} className="px-4 py-2 rounded-lg bg-charcoal border border-charcoal-dark text-gray-300 hover:text-white">Cancel</button>
           <button onClick={() => {
             const map: Record<string, number> = {};
-            for (const [cat, v] of Object.entries(draft)) { const n = parseFloat(v); if (Number.isFinite(n) && n > 0) map[cat] = n; }
+            for (const [cat, v] of Object.entries(draft)) { const n = parseFloat(v); map[cat] = Number.isFinite(n) && n > 0 ? n : 0; }
             onSave(map);
           }} className="px-4 py-2 rounded-lg bg-accent text-white font-medium hover:bg-accent-dark">Save</button>
         </div>

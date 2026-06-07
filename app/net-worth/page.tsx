@@ -124,7 +124,7 @@ export default function NetWorthPage() {
                         <Cell key={entry.name} fill={PIE_COLORS[i % PIE_COLORS.length]} stroke="none" />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }} formatter={(v: number) => fmt(v)} />
+                    <Tooltip contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(v: number) => fmt(v)} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -162,7 +162,7 @@ export default function NetWorthPage() {
                   <CartesianGrid stroke="#333" strokeDasharray="3 3" />
                   <XAxis dataKey="label" stroke="#888" fontSize={11} />
                   <YAxis stroke="#888" fontSize={12} width={64} tickFormatter={(v) => (v >= 1000 ? `$${Math.round(v / 1000)}k` : `$${v}`)} />
-                  <Tooltip contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }} formatter={(v: number) => fmt(v)} />
+                  <Tooltip contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(v: number) => fmt(v)} />
                   <Line type="monotone" dataKey="fidelityTotal" stroke="#50C878" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>

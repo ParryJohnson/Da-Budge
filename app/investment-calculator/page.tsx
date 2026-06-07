@@ -162,6 +162,8 @@ export default function InvestmentCalculatorPage() {
                       tickFormatter={(v) => (v >= 1000 ? `$${Math.round(v / 1000)}k` : `$${v}`)} />
                     <Tooltip
                       contentStyle={{ background: "#252525", border: "1px solid #333", borderRadius: 8, color: "#fff" }}
+                      itemStyle={{ color: "#fff" }}
+                      labelStyle={{ color: "#fff" }}
                       formatter={(v: number, name) => [fmt(v), name === "nominal" ? "Nominal" : name === "real" ? "Real" : "Contributed"]}
                       labelFormatter={(l) => `Age ${l}`} />
                     <Line type="monotone" dataKey="nominal" stroke="#50C878" strokeWidth={2} dot={false} />

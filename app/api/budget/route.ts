@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 import { migrateBudgetCategoryKeys, type MonthlyBudgets } from "@/lib/budgetCategoryMigration";
+import type { Sql } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+async function ensureBudgetTable(sql: Sql) {
+  await sql`CREATE TABLE IF NOT EXISTS budget_store (
+    id integer primary key default 1,
+    data jsonb not null default '{}'
+  )`;
+}
 
 function isValidMonthKey(k: string): boolean {
   const n = parseInt(k, 10);
@@ -32,6 +40,7 @@ export async function GET() {
   if (!connectionString) return NextResponse.json({});
   try {
     const sql = neon(connectionString);
+    await ensureBudgetTable(sql);
     const rows = await sql`SELECT data FROM budget_store WHERE id = 1`;
     const raw = rows[0]?.data ?? {};
     const base = typeof raw === "object" && raw !== null && !Array.isArray(raw) ? (raw as MonthlyBudgets) : {};
@@ -56,6 +65,7 @@ export async function PUT(request: NextRequest) {
   const data = migrateBudgetCategoryKeys(normalized);
   try {
     const sql = neon(connectionString);
+    await ensureBudgetTable(sql);
     await sql`INSERT INTO budget_store (id, data) VALUES (1, ${data}) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`;
     return NextResponse.json(data);
   } catch (err) {
